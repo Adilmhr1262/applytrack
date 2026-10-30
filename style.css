@@ -131,7 +131,11 @@ a { color: var(--primary); }
 .form-card { max-width: 820px; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
 .form-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
-.followup-item { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.followup-item {
+  display: flex; justify-content: space-between; gap: 12px; width: 100%;
+  padding: 10px 0; border: 0; border-bottom: 1px solid var(--border);
+  background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer;
+}
 .followup-item:last-child { border-bottom: 0; }
 .followup-item .due { font-weight: 700; }
 .followup-item .due.overdue { color: var(--red); }

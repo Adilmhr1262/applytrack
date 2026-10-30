@@ -211,14 +211,17 @@ function renderDashboard() {
   });
 }
 function followupRow(a, isOverdue) {
-  var row = el("div", "followup-item");
-  var left = el("div");
+  /* A real button, not a clickable div, so keyboard users can activate
+     it with Enter or Space like any other control. */
+  var row = el("button", "followup-item");
+  row.type = "button";
+  row.setAttribute("aria-label", "Edit application: " + a.title + " at " + a.company);
+  var left = el("span");
   left.appendChild(el("span", null, a.company + " — " + a.title));
   left.appendChild(el("span", "sub", "Status: " + a.status));
   var due = el("span", "due" + (isOverdue ? " overdue" : " soon"), (isOverdue ? "Overdue: " : "") + fmtDate(a.followUpDate));
   row.appendChild(left); row.appendChild(due);
   row.addEventListener("click", function () { openForm(a.id); gotoView("form"); });
-  row.style.cursor = "pointer";
   return row;
 }
 
@@ -443,7 +446,7 @@ $("import-file").addEventListener("change", function (e) {
         if (!Array.isArray(r.history) || r.history.length === 0) throw new Error("An application is missing its status history.");
         r.history.forEach(function (h) {
           if (!h || typeof h.at !== "string" || isNaN(Date.parse(h.at))) throw new Error("A history entry has an invalid date.");
-          if (h.kind !== undefined && h.kind !== "created" && h.kind !== "changed") throw new Error("A history entry has an invalid type.");
+          if (h.kind !== "created" && h.kind !== "changed") throw new Error("A history entry must have kind created or changed.");
         });
       });
       /* Validation passed for every record: only now replace the data. */
@@ -455,6 +458,11 @@ $("import-file").addEventListener("change", function (e) {
           showToast("Backup imported.");
           gotoView("settings");
         });
+      }).catch(function (err) {
+        /* The single-transaction replace failed, so old data is intact.
+           Say so plainly instead of leaving the user with no feedback. */
+        errBox.textContent = "Import failed and your existing data was not changed. " + (err && err.message ? err.message : "The database write did not complete.");
+        errBox.hidden = false;
       });
     } catch (err) {
       errBox.textContent = "Import failed. Nothing was changed. " + err.message;
