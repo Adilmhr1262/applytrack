@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ApplyTrack — Every application. One clear place.</title>
+<meta name="description" content="A privacy-first job application tracker. All data stays in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<div class="layout">
+  <aside class="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span class="brand-text"><strong>ApplyTrack</strong><small>Every application. One clear place.</small></span>
+    </div>
+    <nav class="nav" aria-label="Sections">
+      <button type="button" class="nav-btn is-active" data-nav="dashboard">Dashboard</button>
+      <button type="button" class="nav-btn" data-nav="applications">Applications</button>
+      <button type="button" class="nav-btn" data-nav="form">Add application</button>
+      <button type="button" class="nav-btn" data-nav="settings">Settings</button>
+    </nav>
+    <p class="privacy-note">Private by design. Your records never leave this browser. No account, no server, no tracking.</p>
+  </aside>
+
+  <main class="main" id="main">
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <!-- Dashboard -->
+    <section class="view is-active" id="view-dashboard" aria-labelledby="dashboard-heading">
+      <header class="page-head">
+        <div>
+          <h1 id="dashboard-heading">Dashboard</h1>
+          <p class="page-sub">Your pipeline at a glance, and the follow-ups that need attention.</p>
+        </div>
+        <button type="button" class="btn btn-primary" data-goto-form>Add application</button>
+      </header>
+
+      <div class="stats" aria-label="Application statistics">
+        <div class="stat"><span class="stat-label">Total applications</span><strong class="stat-value" id="stat-total">0</strong></div>
+        <div class="stat"><span class="stat-label">Active applications</span><strong class="stat-value" id="stat-active">0</strong></div>
+        <div class="stat"><span class="stat-label">Interviews</span><strong class="stat-value" id="stat-interviews">0</strong></div>
+        <div class="stat"><span class="stat-label">Offers</span><strong class="stat-value" id="stat-offers">0</strong></div>
+      </div>
+
+      <div class="grid-2">
+        <section class="card" aria-labelledby="followups-heading">
+          <h2 id="followups-heading">Follow-ups</h2>
+          <div id="followups-overdue"></div>
+          <div id="followups-upcoming"></div>
+          <p class="empty" id="followups-empty" hidden>No follow-up dates set yet. Add a follow-up date when you save an application.</p>
+        </section>
+
+        <section class="card" aria-labelledby="activity-heading">
+          <h2 id="activity-heading">Recent activity</h2>
+          <ul class="activity" id="activity-list"></ul>
+          <p class="empty" id="activity-empty" hidden>No activity yet. Add your first application to start tracking.</p>
+        </section>
+      </div>
+
+      <section class="card" aria-labelledby="pipeline-heading">
+        <h2 id="pipeline-heading">Pipeline</h2>
+        <ul class="pipeline" id="pipeline-list"></ul>
+      </section>
+    </section>
+
+    <!-- Applications -->
+    <section class="view" id="view-applications" aria-labelledby="applications-heading" hidden>
+      <header class="page-head">
+        <div>
+          <h1 id="applications-heading">Applications</h1>
+          <p class="page-sub">Search, filter, and update every application.</p>
+        </div>
+        <button type="button" class="btn btn-primary" data-goto-form>Add application</button>
+      </header>
+
+      <div class="filters card">
+        <div class="field">
+          <label for="search-input">Search</label>
+          <input id="search-input" type="search" placeholder="Search company or job title" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="filter-status">Status</label>
+          <select id="filter-status">
+            <option value="all">All statuses</option>
+            <option value="Saved">Saved</option>
+            <option value="Applied">Applied</option>
+            <option value="Screening">Screening</option>
+            <option value="Interview">Interview</option>
+            <option value="Offer">Offer</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Withdrawn">Withdrawn</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="sort-select">Sort</label>
+          <select id="sort-select">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="followup">Next follow-up</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="result-count" id="result-count" aria-live="polite"></p>
+      <div class="app-list" id="app-list"></div>
+      <p class="empty card" id="apps-empty" hidden>No applications match. Try a different search or filter, or add a new application.</p>
+    </section>
+
+    <!-- Add / Edit -->
+    <section class="view" id="view-form" aria-labelledby="form-heading" hidden>
+      <header class="page-head">
+        <div>
+          <h1 id="form-heading">Add application</h1>
+          <p class="page-sub">Fields marked with an asterisk are required.</p>
+        </div>
+      </header>
+      <form class="card form-card" id="app-form" novalidate>
+        <input type="hidden" id="field-id">
+        <div class="form-grid">
+          <div class="field">
+            <label for="field-company">Company *</label>
+            <input id="field-company" type="text" maxlength="120" required autocomplete="organization">
+            <p class="field-error" id="error-company" hidden>Enter a company name.</p>
+          </div>
+          <div class="field">
+            <label for="field-title">Job title *</label>
+            <input id="field-title" type="text" maxlength="160" required autocomplete="off">
+            <p class="field-error" id="error-title" hidden>Enter a job title.</p>
+          </div>
+          <div class="field">
+            <label for="field-location">Location</label>
+            <input id="field-location" type="text" maxlength="120" autocomplete="off" placeholder="City, country, or Remote">
+          </div>
+          <div class="field">
+            <label for="field-url">Job posting URL</label>
+            <input id="field-url" type="url" maxlength="500" inputmode="url" placeholder="https://example.com/jobs/123">
+            <p class="field-error" id="error-url" hidden>Enter a full URL starting with http:// or https://, or leave this blank.</p>
+          </div>
+          <div class="field">
+            <label for="field-date">Application date *</label>
+            <input id="field-date" type="date" required>
+            <p class="field-error" id="error-date" hidden>Pick a valid application date.</p>
+          </div>
+          <div class="field">
+            <label for="field-followup">Follow-up date</label>
+            <input id="field-followup" type="date">
+            <p class="field-error" id="error-followup" hidden>Pick a valid follow-up date.</p>
+          </div>
+          <div class="field">
+            <label for="field-status">Status</label>
+            <select id="field-status">
+              <option value="Saved">Saved</option>
+              <option value="Applied">Applied</option>
+              <option value="Screening">Screening</option>
+              <option value="Interview">Interview</option>
+              <option value="Offer">Offer</option>
+              <option value="Rejected">Rejected</option>
+              <option value="Withdrawn">Withdrawn</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="field-salary">Salary (optional)</label>
+            <input id="field-salary" type="text" maxlength="60" autocomplete="off" placeholder="e.g. 120,000 per year">
+          </div>
+        </div>
+        <div class="field">
+          <label for="field-notes">Notes</label>
+          <textarea id="field-notes" rows="4" maxlength="2000" placeholder="Recruiter name, interview notes, next steps"></textarea>
+        </div>
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="save-btn">Save application</button>
+          <button type="button" class="btn" id="cancel-btn">Cancel</button>
+        </div>
+      </form>
+
+      <section class="card" id="history-card" hidden aria-labelledby="history-heading">
+        <h2 id="history-heading">Status history</h2>
+        <ul class="activity" id="history-list"></ul>
+      </section>
+    </section>
+
+    <!-- Settings -->
+    <section class="view" id="view-settings" aria-labelledby="settings-heading" hidden>
+      <header class="page-head">
+        <div>
+          <h1 id="settings-heading">Settings</h1>
+          <p class="page-sub">Back up your data, restore it, set defaults, or start over.</p>
+        </div>
+      </header>
+
+      <div class="grid-2">
+        <section class="card" aria-labelledby="backup-heading">
+          <h2 id="backup-heading">Backup and restore</h2>
+          <p>Export downloads every application as one JSON file. Import replaces all current data, but only after the whole file passes validation. A broken file changes nothing.</p>
+          <div class="stack">
+            <button type="button" class="btn btn-primary" id="export-btn">Export backup (JSON)</button>
+            <label class="btn file-btn" for="import-file">Import backup (JSON)</label>
+            <input class="visually-hidden" id="import-file" type="file" accept=".json,application/json">
+          </div>
+          <p class="form-error" id="import-error" role="alert" hidden></p>
+          <p class="success-text" id="import-success" role="status" hidden></p>
+        </section>
+
+        <section class="card" aria-labelledby="prefs-heading">
+          <h2 id="prefs-heading">Preferences</h2>
+          <div class="field">
+            <label for="pref-default-status">Default status for new applications</label>
+            <select id="pref-default-status">
+              <option value="Saved">Saved</option>
+              <option value="Applied">Applied</option>
+              <option value="Screening">Screening</option>
+              <option value="Interview">Interview</option>
+              <option value="Offer">Offer</option>
+              <option value="Rejected">Rejected</option>
+              <option value="Withdrawn">Withdrawn</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="pref-default-sort">Default sort in Applications</label>
+            <select id="pref-default-sort">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="followup">Next follow-up</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn-primary" id="save-prefs-btn">Save preferences</button>
+        </section>
+      </div>
+
+      <section class="card danger-card" aria-labelledby="danger-heading">
+        <h2 id="danger-heading">Clear all data</h2>
+        <p>This deletes every application, its status history, and your preferences from this browser. Export a backup first if you may want the data back.</p>
+        <button type="button" class="btn btn-danger" id="clear-btn">Delete all data</button>
+      </section>
+    </section>
+  </main>
+</div>
+
+<nav class="bottom-nav" aria-label="Sections">
+  <button type="button" class="nav-btn is-active" data-nav="dashboard">Dashboard</button>
+  <button type="button" class="nav-btn" data-nav="applications">Applications</button>
+  <button type="button" class="nav-btn" data-nav="form">Add</button>
+  <button type="button" class="nav-btn" data-nav="settings">Settings</button>
+</nav>
+
+<script src="app.js"></script>
+</body>
+</html>
